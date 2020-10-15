@@ -72,12 +72,12 @@ void Error_Handler(void);
 #define LORA_RST_GPIO_Port GPIOA
 #define LORA_DIO0_Pin GPIO_PIN_3
 #define LORA_DIO0_GPIO_Port GPIOA
-#define HL3_Pin GPIO_PIN_0
-#define HL3_GPIO_Port GPIOB
+#define Relay_Pin GPIO_PIN_0
+#define Relay_GPIO_Port GPIOB
 #define HL4_Pin GPIO_PIN_1
 #define HL4_GPIO_Port GPIOB
-#define Relay_Pin GPIO_PIN_2
-#define Relay_GPIO_Port GPIOB
+#define HL3_Pin GPIO_PIN_2
+#define HL3_GPIO_Port GPIOB
 #define BL_E_Pin GPIO_PIN_12
 #define BL_E_GPIO_Port GPIOB
 #define LCD_DB7_Pin GPIO_PIN_13

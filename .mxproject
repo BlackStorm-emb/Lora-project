@@ -9,17 +9,17 @@ CDefines=USE_HAL_DRIVER;STM32F100xB;USE_HAL_DRIVER;USE_HAL_DRIVER;
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=3
-HeaderFiles#0=D:/Work/RK3AZB/Lora_prog/Proj/Core/Inc/stm32f1xx_it.h
-HeaderFiles#1=D:/Work/RK3AZB/Lora_prog/Proj/Core/Inc/stm32f1xx_hal_conf.h
-HeaderFiles#2=D:/Work/RK3AZB/Lora_prog/Proj/Core/Inc/main.h
+HeaderFiles#0=D:/Work/Lora_prog/Proj/Core/Inc/stm32f1xx_it.h
+HeaderFiles#1=D:/Work/Lora_prog/Proj/Core/Inc/stm32f1xx_hal_conf.h
+HeaderFiles#2=D:/Work/Lora_prog/Proj/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=D:/Work/RK3AZB/Lora_prog/Proj/Core/Inc
+HeaderPath#0=D:/Work/Lora_prog/Proj/Core/Inc
 HeaderFiles=;
 SourceFileListSize=3
-SourceFiles#0=D:/Work/RK3AZB/Lora_prog/Proj/Core/Src/stm32f1xx_it.c
-SourceFiles#1=D:/Work/RK3AZB/Lora_prog/Proj/Core/Src/stm32f1xx_hal_msp.c
-SourceFiles#2=D:/Work/RK3AZB/Lora_prog/Proj/Core/Src/main.c
+SourceFiles#0=D:/Work/Lora_prog/Proj/Core/Src/stm32f1xx_it.c
+SourceFiles#1=D:/Work/Lora_prog/Proj/Core/Src/stm32f1xx_hal_msp.c
+SourceFiles#2=D:/Work/Lora_prog/Proj/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=D:/Work/RK3AZB/Lora_prog/Proj/Core/Src
+SourcePath#0=D:/Work/Lora_prog/Proj/Core/Src
 SourceFiles=;
 

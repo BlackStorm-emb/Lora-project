@@ -117,8 +117,6 @@ int main(void)
   //Lcd_string(&lcd, "Hello World");
   Lcd_disable_cursor(&lcd);
 
-  HAL_GPIO_TogglePin(GPIOB, HL4_Pin);
-
   /*
   SX1278_t lora;
   lora.hw->dio0.pin = LORA_DIO0_Pin;
@@ -138,7 +136,12 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_RESET);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_SET);
+	  HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -382,7 +385,7 @@ static void MX_GPIO_Init(void)
                           |LCD_A0_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, HL3_Pin|HL4_Pin|Relay_Pin|BL_E_Pin
+  HAL_GPIO_WritePin(GPIOB, Relay_Pin|HL4_Pin|HL3_Pin|BL_E_Pin
                           |LCD_DB7_Pin|LCD_DB6_Pin|LCD_DB5_Pin|PB6_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : but_1_Pin but_2_Pin */
@@ -400,9 +403,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : HL3_Pin HL4_Pin Relay_Pin BL_E_Pin
+  /*Configure GPIO pins : Relay_Pin HL4_Pin HL3_Pin BL_E_Pin
                            LCD_DB7_Pin LCD_DB6_Pin LCD_DB5_Pin PB6_Pin */
-  GPIO_InitStruct.Pin = HL3_Pin|HL4_Pin|Relay_Pin|BL_E_Pin
+  GPIO_InitStruct.Pin = Relay_Pin|HL4_Pin|HL3_Pin|BL_E_Pin
                           |LCD_DB7_Pin|LCD_DB6_Pin|LCD_DB5_Pin|PB6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
