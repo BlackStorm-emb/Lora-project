@@ -19,8 +19,6 @@ static void lcd_write_data(Lcd_HandleTypeDef * lcd, uint8_t data);
 static void lcd_write_command(Lcd_HandleTypeDef * lcd, uint8_t command);
 static void lcd_write(Lcd_HandleTypeDef * lcd, uint8_t data, uint8_t len);
 
-static char* convert(unsigned int num, int base);  //Convert integer number into octal, hex, etc.
-
 
 /************************************** Function definitions **************************************/
 
@@ -42,8 +40,6 @@ Lcd_HandleTypeDef Lcd_create(
 
 	lcd.data_pin = pin;
 	lcd.data_port = port;
-
-	//Lcd_init(&lcd);
 
 	return lcd;
 }
@@ -74,11 +70,11 @@ void Lcd_cursor(Lcd_HandleTypeDef * lcd, uint8_t row, uint8_t col)
  * Blinking and noBlinking cursor or disable cursor
  */
 void Lcd_blink(Lcd_HandleTypeDef * lcd){
-	lcd_write_command(lcd, DISPLAY_ON_OFF_CONTROL | OPT_B);		// Lcd-on, cursor-on, blink
+	lcd_write_command(lcd, DISPLAY_ON_OFF_CONTROL | OPT_D | OPT_B);		// Lcd-on, cursor-on, blink
 }
 
 void Lcd_no_blink(Lcd_HandleTypeDef * lcd){
-	lcd_write_command(lcd, DISPLAY_ON_OFF_CONTROL | OPT_C);		// Lcd-on, cursor-on, no-blink
+	lcd_write_command(lcd, DISPLAY_ON_OFF_CONTROL | OPT_D | OPT_C);		// Lcd-on, cursor-on, no-blink
 }
 
 void Lcd_disable_cursor(Lcd_HandleTypeDef * lcd){
@@ -89,59 +85,6 @@ void Lcd_disable_cursor(Lcd_HandleTypeDef * lcd){
  * Printf() for lcd
  */
 void Lcd_printf(Lcd_HandleTypeDef * lcd, char * format, ...) {
-	char *traverse;
-	unsigned int i;
-	char *s;
-
-	//Initializing Myprintf's arguments
-	    va_list arg;
-	    va_start(arg, format);
-
-	    for(traverse = format; *traverse != '\0'; traverse++)
-	    {
-	        while( *traverse != '%' )
-	        {
-	        	Lcd_string(lcd, traverse);
-	            traverse++;
-	        }
-
-	        traverse++;
-
-	        //Fetching and executing arguments
-	        switch(*traverse)
-	        {
-	            case 'c' : i = va_arg(arg,int);     //Fetch char argument
-	            			Lcd_int(lcd, i);
-	                        break;
-
-	            case 'd' : i = va_arg(arg,int);         //Fetch Decimal/Integer argument
-	                        if(i<0)
-	                        {
-	                            i = -i;
-	                            Lcd_string(lcd, "-");
-	                        }
-	                        Lcd_string(lcd, convert(i,10));
-	                        break;
-
-	            case 'o': i = va_arg(arg,unsigned int); //Fetch Octal representation
-	            			Lcd_string(lcd, convert(i,8));
-	                        break;
-
-	            case 's': s = va_arg(arg,char *);       //Fetch string
-	            			Lcd_string(lcd, s);
-	                        break;
-
-	            case 'x': i = va_arg(arg,unsigned int); //Fetch Hexadecimal representation
-	            			Lcd_string(lcd, convert(i,16));
-	                        break;
-	        }
-	    }
-
-	    //Closing argument list to necessary clean-up
-	    va_end(arg);
-}
-
-void Lcd_printAt(Lcd_HandleTypeDef * lcd, char * format, ...) {
 	char buf[PRINTF_BUF];
 	va_list ap;
 	va_start(ap, format);
@@ -226,22 +169,4 @@ void lcd_write(Lcd_HandleTypeDef * lcd, uint8_t data, uint8_t len)
 	HAL_GPIO_WritePin(lcd->en_port, lcd->en_pin, 1);
 	DELAY(1);
 	HAL_GPIO_WritePin(lcd->en_port, lcd->en_pin, 0); 		// Data receive on falling edge
-}
-
-char* convert(unsigned int num, int base) {
-	static char Representation[]= "0123456789ABCDEF";
-	    static char buffer[50];
-	    char *ptr;
-
-	    ptr = &buffer[49];
-	    *ptr = '\0';
-
-	    do
-	    {
-	        *--ptr = Representation[num%base];
-	        num /= base;
-	    }while(num != 0);
-
-	    return(ptr);
-
 }

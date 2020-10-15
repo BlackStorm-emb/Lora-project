@@ -112,11 +112,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   Lcd_init(&lcd);
   Lcd_clear(&lcd);
-  //Lcd_printf(&lcd, "Hello World %d", 9);
-  Lcd_printAt(&lcd, "Hello World %d%d", 9, 12);
+  Lcd_printf(&lcd, "Hello World %d%d", 9, 12);
 
   //Lcd_string(&lcd, "Hello World");
-  //Lcd_blink(&lcd);
+  Lcd_disable_cursor(&lcd);
 
   HAL_GPIO_TogglePin(GPIOB, HL4_Pin);
 
