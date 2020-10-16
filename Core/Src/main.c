@@ -67,7 +67,7 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t test = 0;
 /* USER CODE END 0 */
 
 /**
@@ -112,36 +112,47 @@ int main(void)
   /* USER CODE BEGIN 2 */
   Lcd_init(&lcd);
   Lcd_clear(&lcd);
-  Lcd_printf(&lcd, "Hello World %d%d", 9, 12);
+  //Lcd_printf(&lcd, "Hello World %d%d", 9, 12);
 
   //Lcd_string(&lcd, "Hello World");
   Lcd_disable_cursor(&lcd);
+  Lcd_cursor(&lcd, 0, 0);
 
-  /*
-  SX1278_t lora;
-  lora.hw->dio0.pin = LORA_DIO0_Pin;
-  lora.hw->dio0.port = GPIOA;
-  lora.hw->nss.pin = SPI_NSS_SOFT;
-  lora.hw->nss.port = GPIOA;
-  lora.hw->reset.pin = LORA_RST_Pin;
-  lora.hw->reset.port = GPIOA;
-  lora.hw->spi = SPI1;
 
-  SX1278_defaultConfig(&lora);
-  */
+  SX1278_hw_t SX1278_hw;
+  SX1278_t SX1278;
+
+  SX1278_hw.dio0.pin = LORA_DIO0_Pin;
+  SX1278_hw.dio0.port = GPIOA;
+  SX1278_hw.nss.pin = LORA_NSS_Pin;
+  SX1278_hw.nss.port = GPIOA;
+  SX1278_hw.reset.pin = LORA_RST_Pin;
+  SX1278_hw.reset.port = GPIOA;
+  SX1278_hw.spi = &hspi1;
+
+  SX1278.hw = &SX1278_hw;
+
+  SX1278_begin(&SX1278, SX1278_433MHZ, SX1278_POWER_17DBM, SX1278_LORA_SF_8,
+  			SX1278_LORA_BW_20_8KHZ, 10);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+	  Lcd_cursor(&lcd, 0, 0);
+	  test = SX1278_SPIRead(&SX1278, 0x42);
+	  Lcd_printf(&lcd, "Test reg: %d", test);
 	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_SET);
 	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_RESET);
 	  HAL_Delay(500);
 	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_RESET);
 	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_SET);
 	  HAL_Delay(500);
+	  Lcd_clear(&lcd);
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -257,7 +268,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
+  hspi1.Init.NSS = SPI_NSS_SOFT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
@@ -381,8 +392,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LORA_RST_Pin|LORA_DIO0_Pin|LCD_DB4_Pin|LCD_E_Pin
-                          |LCD_A0_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, LORA_RST_Pin|LORA_DIO0_Pin|LORA_NSS_Pin|LCD_DB4_Pin
+                          |LCD_E_Pin|LCD_A0_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, Relay_Pin|HL4_Pin|HL3_Pin|BL_E_Pin
@@ -394,10 +405,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LORA_RST_Pin LORA_DIO0_Pin LCD_DB4_Pin LCD_E_Pin
-                           LCD_A0_Pin */
-  GPIO_InitStruct.Pin = LORA_RST_Pin|LORA_DIO0_Pin|LCD_DB4_Pin|LCD_E_Pin
-                          |LCD_A0_Pin;
+  /*Configure GPIO pins : LORA_RST_Pin LORA_DIO0_Pin LORA_NSS_Pin LCD_DB4_Pin
+                           LCD_E_Pin LCD_A0_Pin */
+  GPIO_InitStruct.Pin = LORA_RST_Pin|LORA_DIO0_Pin|LORA_NSS_Pin|LCD_DB4_Pin
+                          |LCD_E_Pin|LCD_A0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -72,6 +72,8 @@ void Error_Handler(void);
 #define LORA_RST_GPIO_Port GPIOA
 #define LORA_DIO0_Pin GPIO_PIN_3
 #define LORA_DIO0_GPIO_Port GPIOA
+#define LORA_NSS_Pin GPIO_PIN_4
+#define LORA_NSS_GPIO_Port GPIOA
 #define Relay_Pin GPIO_PIN_0
 #define Relay_GPIO_Port GPIOB
 #define HL4_Pin GPIO_PIN_1
