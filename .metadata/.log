@@ -170,3 +170,19 @@ java.lang.Exception: Resource '/f103_Test_proj' does not exist.
 
 !ENTRY org.eclipse.cdt.core 1 0 2020-10-15 19:43:41.779
 !MESSAGE Indexed 'SX1278-example' (21 sources, 70 headers) in 4,12 sec: 6 498 declarations; 17 929 references; 7 unresolved inclusions; 119 syntax errors; 2 244 unresolved names (8,4 %)
+!SESSION 2020-10-24 17:10:37.989 -----------------------------------------------
+eclipse.buildId=Version 1.4.0
+java.version=1.8.0_252
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ru_RU
+Framework arguments:  D:\Work\Lora_prog\Proj\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 D:\Work\Lora_prog\Proj\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2020-10-24 17:10:52.937
+!MESSAGE Log4j initialized with config file D:\Work\Lora_prog\Proj\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2020-10-24 17:11:03.769
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 4 4 2020-10-24 17:11:09.927
+!MESSAGE com.st.stm32cube.ide.mcu.ide/META-INF/version/build_ref file not found, build reference will not be reported into properties

@@ -25,15 +25,16 @@
 /* USER CODE BEGIN Includes */
 #include "lcd.h"
 #include "SX1278.h"
+#include <Button.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define _menu_count 4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,12 +63,17 @@ static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+inline void Print_Menu(Lcd_HandleTypeDef * lcd, uint8_t page, uint8_t menu);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t test = 0;
+const char* menu_str[] = {
+		"Menu 1",
+		"Test Reg",
+		"Menu 3",
+		"Menu 4"
+};
 /* USER CODE END 0 */
 
 /**
@@ -85,6 +91,10 @@ int main(void)
 
   Lcd_HandleTypeDef lcd;
   lcd = Lcd_create(ports, pins, GPIOA, LCD_A0_Pin, GPIOA, LCD_E_Pin);
+
+  //menu variables
+  const uint8_t page_count = _menu_count / 2 + _menu_count % 2;
+  uint8_t page = 1, menu = 1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -112,9 +122,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   Lcd_init(&lcd);
   Lcd_clear(&lcd);
-  //Lcd_printf(&lcd, "Hello World %d%d", 9, 12);
-
-  //Lcd_string(&lcd, "Hello World");
   Lcd_disable_cursor(&lcd);
   Lcd_cursor(&lcd, 0, 0);
 
@@ -135,22 +142,41 @@ int main(void)
   SX1278_begin(&SX1278, SX1278_433MHZ, SX1278_POWER_17DBM, SX1278_LORA_SF_8,
   			SX1278_LORA_BW_20_8KHZ, 10);
 
+  Print_Menu(&lcd, page, menu);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  Lcd_cursor(&lcd, 0, 0);
-	  test = SX1278_SPIRead(&SX1278, 0x42);
-	  Lcd_printf(&lcd, "Test reg: %d", test);
-	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_RESET);
-	  HAL_Delay(500);
-	  HAL_GPIO_WritePin(GPIOB, HL4_Pin, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOB, HL3_Pin, GPIO_PIN_SET);
-	  HAL_Delay(500);
-	  Lcd_clear(&lcd);
+
+
+
+
+
+	  if (ReadButtons() == 0x01) {
+		  menu ++;
+		  if (menu > _menu_count) {
+			  menu = 1;
+			  page = 1;
+		  }
+		  if (page <  menu / 2 + menu % 2) {
+			  page ++;
+			  if (page > page_count) page = 1;
+		  }
+		  Print_Menu(&lcd, page, menu);
+	  }
+	  else if (ReadButtons() == 0x02) {
+		  switch(menu) {
+		  	  case 2: {
+		  		  	  Lcd_clear(&lcd);
+		  			  Lcd_cursor(&lcd, 0, 0);
+		  		  	  uint8_t test = SX1278_SPIRead(&SX1278, 0x42);
+		  		  	  Lcd_printf(&lcd, "Test reg: %d", test);
+		  	  }
+		  }
+	  }
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -434,7 +460,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void Print_Menu(Lcd_HandleTypeDef * lcd, uint8_t page, uint8_t menu) {
+	Lcd_clear(lcd);
+	Lcd_cursor(lcd, 0, 0);
+    Lcd_printf(lcd, "%s", menu_str[2 * page - 2]);
+    Lcd_cursor(lcd, 1, 0);
+    Lcd_printf(lcd, "%s", menu_str[2 * page - 1]);
+    Lcd_cursor(lcd, (menu - 1) % 2, 15);
+    Lcd_blink(lcd);
+}
 /* USER CODE END 4 */
 
 /**
