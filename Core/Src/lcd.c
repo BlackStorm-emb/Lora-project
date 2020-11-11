@@ -104,7 +104,7 @@ void Lcd_int(Lcd_HandleTypeDef * lcd, int number)
 /**
  * Write a string on the current position
  */
-void Lcd_string(Lcd_HandleTypeDef * lcd, char * string)
+void Lcd_string(Lcd_HandleTypeDef * lcd, const char * string)
 {
 	for(uint8_t i = 0; i < strlen(string); i++)
 	{

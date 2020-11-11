@@ -9,6 +9,16 @@
 #define INC_BUTTON_H_
 #include <main.h>
 
-uint8_t ReadButtons();
+typedef enum {
+	NONE_Pressed,
+	LEFT_Pressed,
+	RIGHT_Pressed,
+	BOTH_Pressed,
+} Button_state;
+
+Button_state ReadButtons();
+
+void HAL_GPIO_EXTI_customIRQHandler();
+//void HAL_GPIO_EXTI_customIRQHandler();
 
 #endif /* INC_BUTTON_H_ */

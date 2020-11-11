@@ -1,4 +1,6 @@
 "Core/Src/Button.o"
+"Core/Src/Buzzer.o"
+"Core/Src/Callbacks.o"
 "Core/Src/SX1278.o"
 "Core/Src/lcd.o"
 "Core/Src/main.o"

@@ -25,7 +25,9 @@ Core/Src/SX1278.o: ../Core/Src/SX1278.c ../Core/Inc/SX1278.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+ ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
+ ../Core/Inc/lcd.h ../Core/Inc/main.h ../Core/Inc/SX1278.h \
+ ../Core/Inc/Button.h ../Core/Inc/Buzzer.h ../Core/Inc/Callbacks.h
 
 ../Core/Inc/SX1278.h:
 
@@ -84,3 +86,15 @@ Core/Src/SX1278.o: ../Core/Src/SX1278.c ../Core/Inc/SX1278.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
+
+../Core/Inc/lcd.h:
+
+../Core/Inc/main.h:
+
+../Core/Inc/SX1278.h:
+
+../Core/Inc/Button.h:
+
+../Core/Inc/Buzzer.h:
+
+../Core/Inc/Callbacks.h:

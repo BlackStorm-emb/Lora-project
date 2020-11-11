@@ -71,7 +71,7 @@ typedef struct {
 
 void Lcd_init(Lcd_HandleTypeDef * lcd);
 void Lcd_int(Lcd_HandleTypeDef * lcd, int number);
-void Lcd_string(Lcd_HandleTypeDef * lcd, char * string);
+void Lcd_string(Lcd_HandleTypeDef * lcd, const char * string);
 void Lcd_printf(Lcd_HandleTypeDef * lcd, char * format, ...);
 void Lcd_cursor(Lcd_HandleTypeDef * lcd, uint8_t row, uint8_t col);
 void Lcd_blink(Lcd_HandleTypeDef * lcd);

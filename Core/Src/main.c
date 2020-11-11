@@ -23,9 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "lcd.h"
-#include "SX1278.h"
-#include <Button.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,11 +45,14 @@ ADC_HandleTypeDef hadc1;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim16;
 
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-
+char buffer[512];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,6 +62,9 @@ static void MX_ADC1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_TIM16_Init(void);
+static void MX_TIM6_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 inline void Print_Menu(Lcd_HandleTypeDef * lcd, uint8_t page, uint8_t menu);
 /* USER CODE END PFP */
@@ -69,7 +72,7 @@ inline void Print_Menu(Lcd_HandleTypeDef * lcd, uint8_t page, uint8_t menu);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 const char* menu_str[] = {
-		"Menu 1",
+		"RX Lora",
 		"Test Reg",
 		"Menu 3",
 		"Menu 4"
@@ -95,6 +98,12 @@ int main(void)
   //menu variables
   const uint8_t page_count = _menu_count / 2 + _menu_count % 2;
   uint8_t page = 1, menu = 1;
+
+  //lora variables
+  int ret = 0;
+
+  int message = 0;
+  int message_length = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -119,11 +128,14 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM2_Init();
   MX_USART3_UART_Init();
+  MX_TIM16_Init();
+  MX_TIM6_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   Lcd_init(&lcd);
   Lcd_clear(&lcd);
   Lcd_disable_cursor(&lcd);
-  Lcd_cursor(&lcd, 0, 0);
+
 
 
   SX1278_hw_t SX1278_hw;
@@ -142,19 +154,27 @@ int main(void)
   SX1278_begin(&SX1278, SX1278_433MHZ, SX1278_POWER_17DBM, SX1278_LORA_SF_8,
   			SX1278_LORA_BW_20_8KHZ, 10);
 
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1); //for buzzer
+
+  Lcd_cursor(&lcd, 0, 0);
+  Lcd_printf(&lcd, "%s", "Lora project v1");
+  buzzer(600, 10);
+  HAL_Delay(500);
+  buzzer(600, 0);
   Print_Menu(&lcd, page, menu);
+
+  Button_state buttons = NONE_Pressed;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-
-
-
-
-	  if (ReadButtons() == 0x01) {
+	  buttons = ReadButtons();
+	  if (buttons == LEFT_Pressed) {
+		  buzzer(600, 4);
+		  HAL_Delay(20);
+		  buzzer(600, 0);
 		  menu ++;
 		  if (menu > _menu_count) {
 			  menu = 1;
@@ -166,17 +186,41 @@ int main(void)
 		  }
 		  Print_Menu(&lcd, page, menu);
 	  }
-	  else if (ReadButtons() == 0x02) {
+	  else if (buttons == RIGHT_Pressed) {
 		  switch(menu) {
-		  	  case 2: {
-		  		  	  Lcd_clear(&lcd);
-		  			  Lcd_cursor(&lcd, 0, 0);
-		  		  	  uint8_t test = SX1278_SPIRead(&SX1278, 0x42);
-		  		  	  Lcd_printf(&lcd, "Test reg: %d", test);
+		  	  case 1: {
+		  		ret = SX1278_LoRaEntryRx(&SX1278, 16, 2000);
+		  		while (1) { //infinity loop yes )
+					Lcd_clear(&lcd);
+					Lcd_cursor(&lcd, 0, 0);
+
+					ret = SX1278_LoRaRxPacket(&SX1278);
+					Lcd_printf(&lcd, "Received: %d", ret);
+					if (ret > 0) {
+						SX1278_read(&SX1278, (uint8_t*) buffer, ret);
+						Lcd_cursor(&lcd, 1, 0);
+						Lcd_printf(&lcd, "%s", buffer);
+					}
+					if (ReadButtons() == BOTH_Pressed)  {
+						buzzer(600, 4);
+						HAL_Delay(100);
+						buzzer(600, 0);
+						Print_Menu(&lcd, page, menu);
+						break;
+					}
+					HAL_Delay(500);
+		  		}
 		  	  }
+		  	break;
+		  	  case 2: {
+				  Lcd_clear(&lcd);
+				  Lcd_cursor(&lcd, 0, 0);
+				  uint8_t test = SX1278_SPIRead(&SX1278, 0x42);
+				  Lcd_printf(&lcd, "Test reg: %d", test);
+		  	  }
+			break;
 		  }
 	  }
-	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -330,9 +374,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 1000;
+  htim2.Init.Prescaler = 16000;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 10;
+  htim2.Init.Period = 19;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -366,6 +410,121 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
+}
+
+/**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 15999;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 0;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+
+}
+
+/**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 0;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 15999;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 19;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
 
 }
 
@@ -427,7 +586,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : but_1_Pin but_2_Pin */
   GPIO_InitStruct.Pin = but_1_Pin|but_2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -457,15 +616,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
 void Print_Menu(Lcd_HandleTypeDef * lcd, uint8_t page, uint8_t menu) {
 	Lcd_clear(lcd);
 	Lcd_cursor(lcd, 0, 0);
-    Lcd_printf(lcd, "%s", menu_str[2 * page - 2]);
+	Lcd_string(lcd, menu_str[2 * page - 2]);
     Lcd_cursor(lcd, 1, 0);
-    Lcd_printf(lcd, "%s", menu_str[2 * page - 1]);
+    Lcd_string(lcd, menu_str[2 * page - 1]);
     Lcd_cursor(lcd, (menu - 1) % 2, 15);
     Lcd_blink(lcd);
 }

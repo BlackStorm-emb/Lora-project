@@ -33,10 +33,20 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdint.h>
+
+#include "lcd.h"
+#include "SX1278.h"
+#include "Button.h"
+#include "Buzzer.h"
+#include "Callbacks.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim16;
 
 /* USER CODE END ET */
 
@@ -62,8 +72,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define but_1_Pin GPIO_PIN_13
 #define but_1_GPIO_Port GPIOC
+#define but_1_EXTI_IRQn EXTI15_10_IRQn
 #define but_2_Pin GPIO_PIN_14
 #define but_2_GPIO_Port GPIOC
+#define but_2_EXTI_IRQn EXTI15_10_IRQn
 #define TEMP_Pin GPIO_PIN_0
 #define TEMP_GPIO_Port GPIOA
 #define Cell_Voltage_Pin GPIO_PIN_1
